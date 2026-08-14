@@ -7,16 +7,60 @@ tables and columns live in [`erd.md`](erd.md).
 
 ## 1. Stack
 
+### Runtime and language
+
 | Concern | Choice | Why |
 |---------|--------|-----|
-| Application | Next.js, App Router | One deployable, one type system. Server Components query the database directly, removing a serialisation layer |
-| Language | TypeScript, `strict` | Types flow from Prisma through to the UI |
+| Runtime | Node.js 22 LTS (Alpine) | Long-term support, and it strips TypeScript types natively — see below |
+| Language | TypeScript, `strict` | **Everywhere**, including the payments stub and the worker. No JavaScript source in the repo |
+| Package manager | npm | Lockfile committed; `npm ci` in the Docker build for reproducible installs |
+
+### Application
+
+| Concern | Choice | Why |
+|---------|--------|-----|
+| Framework | Next.js, App Router | One deployable, one type system. Server Components query the database directly, removing a serialisation layer |
+| UI | React — Server Components with client islands | Reads render on the server; only interactive pieces ship JavaScript |
 | Styling | Tailwind CSS | Styling colocated with markup; no design language imposed |
-| Database | PostgreSQL 16 | The capacity invariant is enforced by row locking and partial indexes |
+| Validation | Zod | One schema per input, shared by Server Actions and services (§3) |
+| Auth | Auth.js (NextAuth), credentials provider | Works offline; supplies CSRF protection and cookie handling we would otherwise hand-roll |
+| Password hashing | bcrypt, cost 12 | Deliberate work factor; see §7 |
+
+### Data
+
+| Concern | Choice | Why |
+|---------|--------|-----|
+| Database | PostgreSQL 16 | The capacity invariant is enforced by row locking and partial indexes (§4) |
 | Data access | Prisma | Generated types, migration history as schema documentation, transaction API |
-| Auth | Auth.js, credentials provider | Works offline; supplies CSRF protection and cookie handling we would otherwise hand-roll |
-| Payments | `PaymentProvider` port, stub adapter | Reproduces redirect + async webhook shape without a network |
-| Runtime | Docker Compose | Single command, offline, reproducible |
+| Raw SQL | Prisma `$queryRaw` with bound parameters | The seat claim needs `FOR UPDATE SKIP LOCKED`, which the query builder cannot express |
+
+### Infrastructure
+
+| Concern | Choice | Why |
+|---------|--------|-----|
+| Orchestration | Docker Compose | Single command, offline, reproducible |
+| Payments | `PaymentProvider` port + stub adapter | Reproduces redirect and async webhook shape without a network |
+| Background work | Plain Node process (`worker`) | Shares `lib/services` with the web process, so refund rules exist once |
+
+### Quality
+
+| Concern | Choice | Why |
+|---------|--------|-----|
+| Unit and integration | Vitest, against a real PostgreSQL | The invariant under test is enforced by the database; a mock would pass while the system overbooks (§8) |
+| Component | Vitest + Testing Library | Booking form, availability, payment status |
+| End-to-end | Playwright | The three journeys that involve money |
+
+Exact package versions are pinned in `package.json`. The two versions that matter to behaviour —
+Node 22 and PostgreSQL 16 — are pinned in the Dockerfiles and `docker-compose.yml`.
+
+### Notes
+
+**TypeScript everywhere, including the stub.** Node 22 strips TypeScript types at runtime with no
+flag, so `docker/payments-stub/server.ts` runs directly via `CMD ["node", "server.ts"]`. The stub
+keeps its zero-dependency, zero-build-step property *and* is typed like the rest of the codebase —
+there is no JavaScript source anywhere in the repo. Type stripping erases annotations rather than
+compiling them, so the stub avoids constructs that need code generation: no `enum`, no
+`namespace`, no decorators, no parameter properties.
 
 **Why not a separate SPA and API.** Two deployables, duplicated types, and CORS plumbing, buying
 independent scaling we do not need.
@@ -26,6 +70,10 @@ constraint on the MVP.
 
 **Why not SQLite.** It would remove a container, but its write-locking model is not representative
 of the concurrency this system exists to get right.
+
+**Why not Drizzle over Prisma.** Lighter and SQL-first with a higher performance ceiling, but
+Prisma's generated client and migration ergonomics win for a time-boxed MVP meant to be read. The
+one query where the ORM would get in the way is already raw SQL.
 
 ---
 

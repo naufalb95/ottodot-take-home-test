@@ -1,0 +1,102 @@
+name: trial-booking
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-trial_booking}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # `-d` matters: without it pg_isready reports ready before the app database exists
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-trial_booking}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+
+  payments-stub:
+    build:
+      context: ./docker/payments-stub
+    restart: unless-stopped
+    environment:
+      PORT: 4001
+      WEBHOOK_SECRET: ${PAYMENT_WEBHOOK_SECRET:-dev-webhook-secret}
+      WEBHOOK_TARGET_URL: http://web:3000/api/webhooks/payment
+    ports:
+      - "${PAYMENT_STUB_PORT:-4001}:4001"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # One-shot: applies migrations and seeds, then exits. `web` waits for it to succeed.
+  migrate:
+    build:
+      context: ./backend
+      target: dev
+    profiles: ["app"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/trial_booking}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-admin12345}
+      DEFAULT_CLASS_SEATS: ${DEFAULT_CLASS_SEATS:-4}
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  web:
+    build:
+      context: ./backend
+      target: dev
+    profiles: ["app"]
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/trial_booking}
+      AUTH_SECRET: ${AUTH_SECRET:-dev-auth-secret-replace-me}
+      AUTH_URL: ${AUTH_URL:-http://localhost:3000}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Singapore}
+      PAYMENT_PROVIDER: ${PAYMENT_PROVIDER:-stub}
+      PAYMENT_STUB_URL: http://payments-stub:4001
+      PAYMENT_WEBHOOK_SECRET: ${PAYMENT_WEBHOOK_SECRET:-dev-webhook-secret}
+      DEFAULT_CLASS_SEATS: ${DEFAULT_CLASS_SEATS:-4}
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      payments-stub:
+        condition: service_started
+
+  worker:
+    build:
+      context: ./backend
+      target: dev
+    profiles: ["app"]
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/trial_booking}
+      PAYMENT_PROVIDER: ${PAYMENT_PROVIDER:-stub}
+      PAYMENT_STUB_URL: http://payments-stub:4001
+      REFUND_POLL_INTERVAL_MS: ${REFUND_POLL_INTERVAL_MS:-5000}
+    command: yarn worker
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:
