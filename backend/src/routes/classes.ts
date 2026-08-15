@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
 import prisma from '../lib/db';
-import { requireSession } from '../lib/auth';
+import { getSession, requireSession } from '../lib/auth';
 import { requireRole, requireClassOwnership } from '../lib/authz';
 import { createClass, cancelClass } from '../services/class';
 import { createClassSchema, updateClassSchema } from '../validation/schemas';
@@ -48,10 +48,26 @@ const classRoutes: FastifyPluginAsync = async (app) => {
     if (!cls) throw AppError.notFound('Class not found');
 
     const { seats, ...rest } = cls;
+
+    let bookedStudentIds: string[] = [];
+    const session = getSession(request);
+    if (session?.role === 'PARENT') {
+      const bookings = await prisma.booking.findMany({
+        where: {
+          trialClassId: cls.id,
+          student: { parentId: session.userId },
+          status: { in: ['PENDING_PAYMENT', 'CONFIRMED'] },
+        },
+        select: { studentId: true },
+      });
+      bookedStudentIds = bookings.map((b) => b.studentId);
+    }
+
     return {
       ...rest,
       teacher: cls.teacher.name,
       seatsRemaining: seats.filter((s) => s.bookingId === null).length,
+      bookedStudentIds,
     };
   });
 

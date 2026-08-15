@@ -18,6 +18,7 @@ interface ClassDetail {
   ageMax: number | null;
   teacher: string;
   seatsRemaining: number;
+  bookedStudentIds: string[];
 }
 
 interface Student {
@@ -107,13 +108,19 @@ export default function ClassDetailPage() {
         <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6">
           <h2 className="mb-4 text-lg font-semibold">Book this class</h2>
 
-          {students.length === 0 ? (
+          {students.filter((s) => !cls.bookedStudentIds.includes(s.id)).length === 0 ? (
             <p className="text-sm text-gray-500">
-              You need to{' '}
-              <a href="/students" className="text-blue-600 underline">
-                add a student
-              </a>{' '}
-              first.
+              {students.length === 0 ? (
+                <>
+                  You need to{' '}
+                  <a href="/students" className="text-blue-600 underline">
+                    add a student
+                  </a>{' '}
+                  first.
+                </>
+              ) : (
+                'All your childrens are already booked for this class.'
+              )}
             </p>
           ) : (
             <>
@@ -126,7 +133,9 @@ export default function ClassDetailPage() {
                 className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm"
               >
                 <option value="">Choose...</option>
-                {students.map((s) => (
+                {students
+                  .filter((s) => !cls.bookedStudentIds.includes(s.id))
+                  .map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
                   </option>

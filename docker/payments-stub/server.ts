@@ -204,7 +204,9 @@ const server = http.createServer(async (req: IncomingMessage, res: ServerRespons
       void deliver(event, opts);
 
       if (session.returnUrl) {
-        res.writeHead(302, { location: session.returnUrl });
+        const dest = new URL(session.returnUrl);
+        dest.searchParams.set('booking_id', session.bookingId);
+        res.writeHead(302, { location: dest.toString() });
         return res.end();
       }
       return html(res, 200, `<p>Sent <code>${event.type}</code>. You can close this tab.</p>`);
