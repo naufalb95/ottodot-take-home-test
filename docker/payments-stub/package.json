@@ -1,0 +1,6 @@
+{
+  "name": "payments-stub",
+  "private": true,
+  "type": "module",
+  "description": "Offline stand-in for a payment gateway. Zero dependencies; runs on Node's native TypeScript type stripping."
+}
