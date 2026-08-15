@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import type { PaymentProvider, CheckoutResult } from './provider.js';
+import type { PaymentProvider, CheckoutResult } from './provider';
 
 export class StubPaymentProvider implements PaymentProvider {
   constructor(

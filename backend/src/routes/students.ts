@@ -1,12 +1,12 @@
 import type { FastifyPluginAsync } from 'fastify';
-import prisma from '../lib/db.js';
-import { requireSession } from '../lib/auth.js';
-import { requireRole, requireStudentOwnership } from '../lib/authz.js';
-import { createStudent, updateStudent } from '../services/student.js';
+import prisma from '../lib/db';
+import { requireSession } from '../lib/auth';
+import { requireRole, requireStudentOwnership } from '../lib/authz';
+import { createStudent, updateStudent } from '../services/student';
 import {
   createStudentSchema,
   updateStudentSchema,
-} from '../validation/schemas.js';
+} from '../validation/schemas';
 
 const studentRoutes: FastifyPluginAsync = async (app) => {
   app.get('/', async (request) => {

@@ -1,5 +1,5 @@
-import type { TxClient } from '../lib/db.js';
-import { claimSeat } from './allocation.js';
+import type { TxClient } from '../lib/db';
+import { claimSeat } from './allocation';
 
 export async function processPaymentSuccess(
   tx: TxClient,

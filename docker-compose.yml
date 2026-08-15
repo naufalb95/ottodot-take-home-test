@@ -69,7 +69,7 @@ services:
       PAYMENT_WEBHOOK_SECRET: ${PAYMENT_WEBHOOK_SECRET:-dev-webhook-secret}
       DEFAULT_CLASS_SEATS: ${DEFAULT_CLASS_SEATS:-4}
     ports:
-      - "${WEB_PORT:-3000}:3000"
+      - "3000:3000"
     volumes:
       - ./backend:/app
       - /app/node_modules

@@ -1,5 +1,5 @@
-import prisma from '../lib/db.js';
-import type { PaymentProvider } from '../payments/provider.js';
+import prisma from '../lib/db';
+import type { PaymentProvider } from '../payments/provider';
 
 export async function processRefunds(
   provider: PaymentProvider,

@@ -2,14 +2,14 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import cookie from '@fastify/cookie';
-import { AppError } from './lib/errors.js';
-import healthRoutes from './routes/health.js';
-import authRoutes from './routes/auth.js';
-import classRoutes from './routes/classes.js';
-import bookingRoutes from './routes/bookings.js';
-import studentRoutes from './routes/students.js';
-import webhookRoutes from './routes/webhooks.js';
-import adminRoutes from './routes/admin.js';
+import { AppError } from './lib/errors';
+import healthRoutes from './routes/health';
+import authRoutes from './routes/auth';
+import classRoutes from './routes/classes';
+import bookingRoutes from './routes/bookings';
+import studentRoutes from './routes/students';
+import webhookRoutes from './routes/webhooks';
+import adminRoutes from './routes/admin';
 
 export async function buildApp() {
   const app = Fastify({ logger: true });

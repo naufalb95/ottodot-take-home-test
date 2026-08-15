@@ -1,12 +1,12 @@
 import type { FastifyPluginAsync } from 'fastify';
-import prisma from '../lib/db.js';
-import { getPaymentProvider } from '../payments/index.js';
+import prisma from '../lib/db';
+import { getPaymentProvider } from '../payments/index';
 import {
   processPaymentSuccess,
   processPaymentFailure,
-} from '../services/webhook.js';
-import { paymentWebhookSchema } from '../validation/schemas.js';
-import { AppError } from '../lib/errors.js';
+} from '../services/webhook';
+import { paymentWebhookSchema } from '../validation/schemas';
+import { AppError } from '../lib/errors';
 
 const webhookRoutes: FastifyPluginAsync = async (app) => {
   app.removeAllContentTypeParsers();

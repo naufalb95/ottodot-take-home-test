@@ -1,9 +1,9 @@
 import type { FastifyPluginAsync } from 'fastify';
-import prisma from '../lib/db.js';
-import { requireSession } from '../lib/auth.js';
-import { requireRole } from '../lib/authz.js';
-import { getPaymentProvider } from '../payments/index.js';
-import { AppError } from '../lib/errors.js';
+import prisma from '../lib/db';
+import { requireSession } from '../lib/auth';
+import { requireRole } from '../lib/authz';
+import { getPaymentProvider } from '../payments/index';
+import { AppError } from '../lib/errors';
 
 const adminRoutes: FastifyPluginAsync = async (app) => {
   app.get('/payments', async (request) => {

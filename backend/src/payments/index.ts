@@ -1,5 +1,5 @@
-import type { PaymentProvider } from './provider.js';
-import { StubPaymentProvider } from './stub.js';
+import type { PaymentProvider } from './provider';
+import { StubPaymentProvider } from './stub';
 
 let instance: PaymentProvider | null = null;
 

@@ -6,11 +6,11 @@ import {
   createStudent,
   createClassWithSeats,
   createBookingWithPayment,
-} from './helpers/db.js';
+} from './helpers/db';
 import {
   processPaymentSuccess,
   processPaymentFailure,
-} from '../services/webhook.js';
+} from '../services/webhook';
 
 describe('webhook processing', () => {
   beforeEach(truncateAll);

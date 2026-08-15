@@ -1,7 +1,7 @@
 import type { Role } from '@prisma/client';
-import type { Session } from './auth.js';
-import type { TxClient } from './db.js';
-import { AppError } from './errors.js';
+import type { Session } from './auth';
+import type { TxClient } from './db';
+import { AppError } from './errors';
 
 export function requireRole(session: Session, ...roles: Role[]): void {
   if (!roles.includes(session.role)) {

@@ -1,5 +1,5 @@
-import { processRefunds } from './services/refund.js';
-import { getPaymentProvider } from './payments/index.js';
+import { processRefunds } from './services/refund';
+import { getPaymentProvider } from './payments/index';
 
 const POLL_INTERVAL = Number(process.env.REFUND_POLL_INTERVAL_MS ?? 5000);
 

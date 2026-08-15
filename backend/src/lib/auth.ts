@@ -1,6 +1,6 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import type { Role } from '@prisma/client';
-import { AppError } from './errors.js';
+import { AppError } from './errors';
 
 export interface Session {
   userId: string;

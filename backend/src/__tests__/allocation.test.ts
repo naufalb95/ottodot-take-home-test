@@ -5,8 +5,8 @@ import {
   createUser,
   createStudent,
   createClassWithSeats,
-} from './helpers/db.js';
-import { claimSeat, releaseSeat } from '../services/allocation.js';
+} from './helpers/db';
+import { claimSeat, releaseSeat } from '../services/allocation';
 
 describe('seat allocation', () => {
   beforeEach(truncateAll);

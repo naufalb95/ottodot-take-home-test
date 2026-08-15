@@ -1,9 +1,9 @@
 import type { FastifyPluginAsync } from 'fastify';
 import bcrypt from 'bcryptjs';
-import prisma from '../lib/db.js';
-import { setSession, getSession, clearSession } from '../lib/auth.js';
-import { registerSchema, loginSchema } from '../validation/schemas.js';
-import { AppError } from '../lib/errors.js';
+import prisma from '../lib/db';
+import { setSession, getSession, clearSession } from '../lib/auth';
+import { registerSchema, loginSchema } from '../validation/schemas';
+import { AppError } from '../lib/errors';
 
 const authRoutes: FastifyPluginAsync = async (app) => {
   app.post('/register', async (request, reply) => {
@@ -12,6 +12,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     const existing = await prisma.user.findUnique({
       where: { email: data.email },
     });
+    
     if (existing) {
       throw AppError.conflict('Registration failed');
     }

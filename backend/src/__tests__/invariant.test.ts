@@ -6,9 +6,9 @@ import {
   createStudent,
   createClassWithSeats,
   createBookingWithPayment,
-} from './helpers/db.js';
-import { processPaymentSuccess } from '../services/webhook.js';
-import { cancelBooking } from '../services/booking.js';
+} from './helpers/db';
+import { processPaymentSuccess } from '../services/webhook';
+import { cancelBooking } from '../services/booking';
 
 describe('structural invariants', () => {
   beforeEach(truncateAll);

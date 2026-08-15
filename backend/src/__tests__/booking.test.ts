@@ -5,9 +5,9 @@ import {
   createUser,
   createStudent,
   createClassWithSeats,
-} from './helpers/db.js';
-import { createBooking, cancelBooking } from '../services/booking.js';
-import { claimSeat } from '../services/allocation.js';
+} from './helpers/db';
+import { createBooking, cancelBooking } from '../services/booking';
+import { claimSeat } from '../services/allocation';
 
 describe('booking service', () => {
   beforeEach(truncateAll);

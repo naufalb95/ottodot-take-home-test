@@ -6,9 +6,9 @@ import {
   createStudent,
   createClassWithSeats,
   createBookingWithPayment,
-} from './helpers/db.js';
-import { processRefunds } from '../services/refund.js';
-import type { PaymentProvider } from '../payments/provider.js';
+} from './helpers/db';
+import { processRefunds } from '../services/refund';
+import type { PaymentProvider } from '../payments/provider';
 
 function mockProvider(
   shouldFail = false,

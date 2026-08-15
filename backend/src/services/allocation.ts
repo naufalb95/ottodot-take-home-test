@@ -1,4 +1,4 @@
-import type { TxClient } from '../lib/db.js';
+import type { TxClient } from '../lib/db';
 
 export async function claimSeat(
   tx: TxClient,

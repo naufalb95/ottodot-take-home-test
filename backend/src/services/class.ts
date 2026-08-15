@@ -1,4 +1,4 @@
-import type { TxClient } from '../lib/db.js';
+import type { TxClient } from '../lib/db';
 
 const DEFAULT_SEATS = Number(process.env.DEFAULT_CLASS_SEATS ?? 4);
 

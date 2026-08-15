@@ -1,14 +1,14 @@
 import type { FastifyPluginAsync } from 'fastify';
-import prisma from '../lib/db.js';
-import { requireSession } from '../lib/auth.js';
+import prisma from '../lib/db';
+import { requireSession } from '../lib/auth';
 import {
   requireRole,
   requireStudentOwnership,
   requireBookingOwnership,
-} from '../lib/authz.js';
-import { createBooking, cancelBooking } from '../services/booking.js';
-import { createBookingSchema } from '../validation/schemas.js';
-import { getPaymentProvider } from '../payments/index.js';
+} from '../lib/authz';
+import { createBooking, cancelBooking } from '../services/booking';
+import { createBookingSchema } from '../validation/schemas';
+import { getPaymentProvider } from '../payments/index';
 
 const bookingRoutes: FastifyPluginAsync = async (app) => {
   app.post('/', async (request, reply) => {
@@ -62,7 +62,7 @@ const bookingRoutes: FastifyPluginAsync = async (app) => {
         },
         student: { select: { name: true } },
         paymentAttempts: {
-          select: { status: true, refundReason: true },
+          select: { status: true, refundReason: true, failureReason: true },
           orderBy: { createdAt: 'desc' },
           take: 1,
         },

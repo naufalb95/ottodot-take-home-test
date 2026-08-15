@@ -1,5 +1,5 @@
-import type { TxClient } from '../lib/db.js';
-import { AppError } from '../lib/errors.js';
+import type { TxClient } from '../lib/db';
+import { AppError } from '../lib/errors';
 
 export async function createBooking(
   tx: TxClient,
